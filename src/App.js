@@ -1,26 +1,66 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import "./App.css";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import IssueList from "./components/IssueList";
+import Pagination from "./components/Pagination";
+import ItemDetails from "./components/ItemDetails";
+import Navbar from "./components/Navbar";
+
+import { connect } from "react-redux";
+import { getGithubIssues, getTotalPagesCount } from "./redux/actions";
+
+import { BrowserRouter as Router, Route } from "react-router-dom";
+
+import { Container } from "react-bootstrap";
+
+class App extends Component {
+  componentWillMount() {
+    const { getGithubIssues, getTotalPagesCount } = this.props;
+
+    getGithubIssues(1);
+    getTotalPagesCount();
+  }
+
+  render() {
+    return (
+      <Router>
+        <Navbar />
+        <Container>
+          <div className="issue-list">
+            <Route exact path={`/issue/:number`} component={ItemDetails} />
+            {this.props.data ? (
+              <Route exact path="/" component={IssueList} />
+            ) : (
+              "Loading..."
+            )}
+            {this.props.pages ? (
+              <Route exact path="/" component={Pagination} />
+            ) : (
+              "Counting.."
+            )}
+
+            <br />
+            <p />
+          </div>
+        </Container>
+      </Router>
+    );
+  }
 }
 
-export default App;
+const mapStateToProps = state => ({
+  data: state.githubReducer.issues,
+  pages: state.githubReducer.pageCount
+});
+
+function mapDispatchToProps(dispatch) {
+  return {
+    getGithubIssues: data => dispatch(getGithubIssues(data)),
+    getTotalPagesCount: data => dispatch(getTotalPagesCount(data))
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);
