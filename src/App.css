@@ -100,7 +100,7 @@ body {
 
 img {
   vertical-align: baseline !important;
-  max-weight: 100%;
+  max-width: 100%;
 }
 
 .author-comment-top {
